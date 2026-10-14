@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_spectacular",
     "corsheaders",
+    "rest_framework_simplejwt.token_blacklist",
     # Local apps
     "apps.users",
     "apps.accounts",
@@ -110,10 +111,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email — console backend unless overridden (e.g. SMTP in the future)
 
-EMAIL_BACKEND = env.str(
-    "EMAIL_BACKEND",
-    default="django.core.mail.backends.console.EmailBackend",
-)
+MAILERS = {
+    "default": {
+        "BACKEND": env.str(
+            "EMAIL_BACKEND",
+            default="django.core.mail.backends.console.EmailBackend",
+        ),
+    },
+}
 
 # Django REST Framework
 
@@ -132,7 +137,14 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_RATES": {
+        "auth": "10/min",
+    },
 }
+
+# Custom user
+
+AUTH_USER_MODEL = "users.User"
 
 # SimpleJWT
 
