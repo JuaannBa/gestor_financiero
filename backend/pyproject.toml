@@ -1,0 +1,18 @@
+[project]
+name = "gestor-financiero-backend"
+version = "0.1.0"
+description = "Django REST backend for Gestor Financiero"
+requires-python = ">=3.14"
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+pythonpath = ["."]
+testpaths = ["tests", "apps"]
+addopts = "--strict-markers -ra"
