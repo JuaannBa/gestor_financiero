@@ -14,7 +14,11 @@ class BudgetViewSet(viewsets.ModelViewSet):
     ordering_fields = ["year", "month"]
 
     def get_queryset(self):
-        qs = Budget.objects.filter(user=self.request.user).select_related("category")
+        qs = (
+            Budget.objects.filter(user=self.request.user)
+            .select_related("category")
+            .order_by("year", "month", "category__name")
+        )
         year = self.request.query_params.get("year")
         month = self.request.query_params.get("month")
         if year and month and year.isdigit() and month.isdigit():

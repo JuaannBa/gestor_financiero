@@ -61,8 +61,8 @@ def test_dashboard_aggregates(auth_client):
 
     assert data["income"] == "3000.00"
     assert data["expense"] == "150.00"
-    # 1000 opening + 3000 - 150
-    assert data["net_balance"] == "3850.00"
+    # net worth = opening 1000 + income 3000 - Jan expenses 150 - Feb expense 999
+    assert data["net_balance"] == "2851.00"
 
     by_cat = {row["category_name"]: row["total"] for row in data["by_category"]}
     assert by_cat == {"Rent": "100.00", "Food": "50.00"}
@@ -111,8 +111,8 @@ def test_balance_series(auth_client):
     series = response.json()["series"]
     assert len(series) == 3
 
-    expected_final = 500 + 200 - 100
-    assert series[-1]["net_balance"] == str(expected_final)
+    expected_final = "600.00"  # 500 opening + 200 income - 100 expense
+    assert series[-1]["net_balance"] == expected_final
     # periods are chronological monthly
     periods = [row["period"] for row in series]
     assert periods[0] == f"{two_months_ago.year}-{two_months_ago.month:02d}"

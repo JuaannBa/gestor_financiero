@@ -29,10 +29,18 @@ def balance_annotations():
         "from_account", from_account_id=OuterRef("pk"), type=Transaction.Type.TRANSFER
     )
     return {
-        "income_total": Coalesce(Subquery(income, output_field=DECIMAL), Value(0)),
-        "expense_total": Coalesce(Subquery(expense, output_field=DECIMAL), Value(0)),
-        "transfer_in_total": Coalesce(Subquery(transfer_in, output_field=DECIMAL), Value(0)),
-        "transfer_out_total": Coalesce(Subquery(transfer_out, output_field=DECIMAL), Value(0)),
+        "income_total": Coalesce(
+            Subquery(income, output_field=DECIMAL), Value(0), output_field=DECIMAL
+        ),
+        "expense_total": Coalesce(
+            Subquery(expense, output_field=DECIMAL), Value(0), output_field=DECIMAL
+        ),
+        "transfer_in_total": Coalesce(
+            Subquery(transfer_in, output_field=DECIMAL), Value(0), output_field=DECIMAL
+        ),
+        "transfer_out_total": Coalesce(
+            Subquery(transfer_out, output_field=DECIMAL), Value(0), output_field=DECIMAL
+        ),
     }
 
 
@@ -47,6 +55,41 @@ def annotated_balance(account):
         - account.expense_total
         + account.transfer_in_total
         - account.transfer_out_total
+    )
+
+
+def compute_balance(account):
+    """Balance for a single unannotated account (used on create/update responses)."""
+    agg = Transaction.objects.filter(
+        Q(account=account) | Q(to_account=account) | Q(from_account=account)
+    ).aggregate(
+        income=Coalesce(
+            Sum("amount", filter=Q(type="income", account=account)),
+            Value(0),
+            output_field=DECIMAL,
+        ),
+        expense=Coalesce(
+            Sum("amount", filter=Q(type="expense", account=account)),
+            Value(0),
+            output_field=DECIMAL,
+        ),
+        transfer_in=Coalesce(
+            Sum("amount", filter=Q(type="transfer", to_account=account)),
+            Value(0),
+            output_field=DECIMAL,
+        ),
+        transfer_out=Coalesce(
+            Sum("amount", filter=Q(type="transfer", from_account=account)),
+            Value(0),
+            output_field=DECIMAL,
+        ),
+    )
+    return (
+        account.opening_balance
+        + agg["income"]
+        - agg["expense"]
+        + agg["transfer_in"]
+        - agg["transfer_out"]
     )
 
 

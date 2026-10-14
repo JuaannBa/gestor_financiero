@@ -18,4 +18,5 @@ def api_client():
 def auth_client(user):
     client = APIClient()
     client.force_authenticate(user=user)
+    client.user = user
     return client
