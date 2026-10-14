@@ -16,6 +16,7 @@ urlpatterns = [
     path("api/v1/", include("apps.accounts.urls", namespace="accounts")),
     path("api/v1/", include("apps.ledger.urls", namespace="ledger")),
     path("api/v1/", include("apps.budgets.urls", namespace="budgets")),
+    path("api/v1/", include("apps.imports.urls", namespace="imports")),
     path("api/v1/reports/", include("apps.reports.urls", namespace="reports")),
     path(
         "api/v1/schema/",

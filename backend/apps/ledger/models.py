@@ -75,6 +75,10 @@ class Transaction(models.Model):
         related_name="transactions",
     )
     notes = models.TextField(blank=True)
+    # null=True is required: partial unique constraint keys on IS NOT NULL
+    import_fingerprint = models.CharField(  # noqa: DJ001
+        max_length=64, null=True, blank=True, db_index=True
+    )
 
     # transfers
     from_account = models.ForeignKey(
@@ -126,6 +130,11 @@ class Transaction(models.Model):
             models.CheckConstraint(
                 condition=~Q(from_account=F("to_account")),
                 name="transfer_distinct_accounts",
+            ),
+            models.UniqueConstraint(
+                fields=["user", "import_fingerprint"],
+                condition=Q(import_fingerprint__isnull=False),
+                name="unique_import_fingerprint_per_user",
             ),
         ]
 
