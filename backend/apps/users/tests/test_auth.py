@@ -1,6 +1,5 @@
 import pytest
 from django.core.cache import cache
-from rest_framework.test import APIClient
 
 from apps.users.factories import UserFactory
 
@@ -11,11 +10,6 @@ LOGOUT = "/api/v1/auth/logout/"
 ME = "/api/v1/auth/me/"
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def api_client():
-    return APIClient()
 
 
 @pytest.fixture(autouse=True)
